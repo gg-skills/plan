@@ -69,7 +69,7 @@ Restart your agent or reload skills after installation. See the parent [`skills`
 
 | Command | Purpose |
 |---|---|
-| `npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir <path>` | Stage and publish a plan folder; prints JSON result |
+| `npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir <path>` | Stage and publish a plan folder; prints JSON result |
 | `npx tsx … --latest` | Auto-resolve newest `YYYY-MM-DD-*` folder and publish |
 | `npx tsx … --dry-run` | Validate without staging or committing |
 | `npm run skills:sync` | Rebuild skill indexes after any skill-file change |
@@ -153,10 +153,10 @@ git submodule add git@github.com:gg-skills/plan.git .claude/skills/plan
 # "Execute this plan" or "generate an implementation plan from the study at .studies/…"
 
 # 3. Publish completed plan artifacts
-npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --latest
+npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --latest
 
 # 4. Dry-run to validate without committing
-npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/2026-05-17-my-task" --dry-run
+npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/2026-05-17-my-task" --dry-run
 ```
 
 ## Resources

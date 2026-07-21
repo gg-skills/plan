@@ -66,18 +66,18 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 
 ```bash
 # Publish completed plan artifacts
-npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/YYYY-MM-DD-task-name-slug"
+npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/YYYY-MM-DD-task-name-slug"
 
 # Resolve the latest plan folder automatically
-npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --latest
+npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --latest
 
 # Dry-run publish
-npx tsx skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/YYYY-MM-DD-task-name-slug" --dry-run
+npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/YYYY-MM-DD-task-name-slug" --dry-run
 
 # Check plan completeness (15-item checklist + consistency + red flags)
-npx tsx skills/plan/scripts/check-plan-completeness.ts --latest
-npx tsx skills/plan/scripts/check-plan-completeness.ts --plan ".plans/YYYY-MM-DD-slug/plan-slug.md"
-npx tsx skills/plan/scripts/check-plan-completeness.ts --latest --json
+npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --latest
+npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --plan ".plans/YYYY-MM-DD-slug/plan-slug.md"
+npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --latest --json
 
 # Sync skills after skill-file changes
 npm run skills:sync

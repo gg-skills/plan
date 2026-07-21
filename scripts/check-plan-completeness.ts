@@ -9,9 +9,9 @@
  * `--latest`, argv parsing for `--plan` / `--latest` / `--json`, and stdout/stderr orchestration.
  * Flow: argv -> resolve plan path -> read markdown -> checklist + consistency + red flags -> weighted score, tier, `canPublish` -> stdout (exit 1 on unreadable plan paths).
  *
- * @testing CLI: npx tsx skills/plan/scripts/check-plan-completeness.ts --latest
- * @testing CLI: npx tsx skills/plan/scripts/check-plan-completeness.ts --latest --json
- * @testing CLI: npx tsx skills/plan/scripts/check-plan-completeness.ts --plan .plans/2026-05-19-test/plan-test.md
+ * @testing CLI: npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --latest
+ * @testing CLI: npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --latest --json
+ * @testing CLI: npx tsx .agents/skills/plan/scripts/check-plan-completeness.ts --plan .plans/2026-05-19-test/plan-test.md
  *
  * @see skills/plan/SKILL.md - plan skill surface that describes when plan completeness gates study-to-implementation handoffs and how agents should run this checker.
  * @see docs/TYPESCRIPT_STANDARDS_DOCUMENTATION_FILE_OVERVIEWS.md - Repository authority for the audited file-overview tag order, testing and cross-reference discipline, and trailing documentation metadata used in this header.
