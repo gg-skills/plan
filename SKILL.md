@@ -499,7 +499,7 @@ When the task is "write the implementation plan" from a completed study:
 
 ### CHOOSEABLE_OPTIONS Contract
 
-Plan closeout must end with a `CHOOSEABLE_OPTIONS` block that is:
+Plan closeout must end with a `CHOOSEABLE_OPTIONS` block presented per `chooseable-options/SKILL.md`: printed SCREAMING_SNAKE_CASE tokens **and** the harness Ask User picker when that tool is available.
 
 1. Concise and easy to select in terminal conversation.
 2. Adapted to the current scenario.
