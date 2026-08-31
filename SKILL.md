@@ -541,6 +541,8 @@ CHOOSEABLE_OPTIONS
 - `REVIEW_PLAN_POINT_BY_POINT`: Walk the plan sections and challenge the locked defaults before code changes.
 ```
 
+Also invoke the harness Ask User picker for these options in the same turn when that tool is available. See `chooseable-options/SKILL.md`.
+
 ## Synthetic Validation Scenarios
 
 Before calling the plan contract complete, verify that the updated guidance supports all of these scenarios cleanly:
