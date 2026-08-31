@@ -56,7 +56,7 @@ Restart your agent or reload skills after installation. See the parent [`skills`
 
 | Artifact | Path / format |
 |---|---|
-| **Plan document** | `.plans/YYYY-MM-DD-<slug>/plan-<slug>-YYYY-MM-DD.md` (Markdown) |
+| **Plan document** | `.plans/YYYY-MM-DD-<slug>/plan-<slug>-YYYY-MM-DD.md` (Markdown) plus sibling `.html` |
 | **Baseline evidence** | `.plans/…/artifacts/baseline/` — screenshots, audit directories |
 | **Post-implementation evidence** | `.plans/…/artifacts/post/` — screenshots, audit directories |
 | **Runtime-health artifacts** | `.plans/…/artifacts/runtime-health/` |
@@ -69,6 +69,7 @@ Restart your agent or reload skills after installation. See the parent [`skills`
 
 | Command | Purpose |
 |---|---|
+| `npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --input <file.md>` | After any plan markdown write; prints absolute markdown and HTML paths |
 | `npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir <path>` | Stage and publish a plan folder; prints JSON result |
 | `npx tsx … --latest` | Auto-resolve newest `YYYY-MM-DD-*` folder and publish |
 | `npx tsx … --dry-run` | Validate without staging or committing |
@@ -140,7 +141,8 @@ plan/
 │   ├── icon-master.png
 │   └── icon-small.svg
 └── scripts/
-    └── finalize-plan-artifacts.ts    # CLI: stage & publish .plans/ artifact tree
+    ├── finalize-plan-artifacts.ts    # CLI: stage & publish .plans/ artifact tree
+    └── render-markdown-html.ts       # Sibling HTML for plan markdown
 ```
 
 ## Quick start
@@ -169,7 +171,7 @@ npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plan
 ## Caveats
 
 - **Evidence-first is non-negotiable.** No code edit may begin before baseline evidence is captured; no fast path bypasses this gate regardless of perceived simplicity.
-- **Plan file is source of truth.** Chat-only state drifts. Patch the `.plans/…` file whenever scope, sequencing, or blockers change.
+- **Plan file is source of truth.** Chat-only state drifts. Patch the `.plans/…` file whenever scope, sequencing, or blockers change. After any markdown write, generate sibling HTML and report absolute paths to both.
 - **Sub-agents never own the final plan file.** Even when fan-out is enabled, the coordinating agent integrates all drafts before writing the plan.
 - **`finalize-plan-artifacts.ts` requires `tsx` and the shared helper** at `scripts/shared/finalize-scoped-artifact.ts` in the consuming repo. The script errors if that helper is absent.
 - **Local-edge startup transients are not terminal.** Wait for `npm run local` service convergence before judging runtime health; do not block execution on transient startup failures.

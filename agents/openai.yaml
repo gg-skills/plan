@@ -7,6 +7,7 @@ interface:
   default_prompt: >-
     Use plan when bridging studies or analysis into implementation
     plans with evidence-first execution, browser validation, documentation sync, and guidance
-    reconciliation. Default to single-threaded plan writing; offer sub-agent assistance only when
+    reconciliation. After writing plan markdown, generate sibling HTML and report absolute paths
+    to both. Default to single-threaded plan writing; offer sub-agent assistance only when
     explicitly requested. Reference plan/SKILL.md when
     cross-referencing this skill.

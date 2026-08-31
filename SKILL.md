@@ -84,6 +84,10 @@ npm run skills:sync
 
 # Reconcile guidance files after AGENTS.md changes
 npm run agents:sync
+
+# After any plan markdown write: generate sibling HTML and print absolute paths
+npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --input ".plans/YYYY-MM-DD-slug/plan-slug-YYYY-MM-DD.md"
+npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --dir ".plans/YYYY-MM-DD-slug"
 ```
 
 ## Non-Negotiable Policy
@@ -96,6 +100,7 @@ npm run agents:sync
 6. **Sync before closure.** Documentation sync and guidance reconciliation (the `agents-sync` workflow) must complete before closure when relevant files changed; skill files changed require `npm run skills:sync`.
 7. **Runtime-health gates.** Stop execution and record the plan as blocked when a required dependency is unhealthy; transient startup failures under `npm run local` are provisional until local-edge convergence.
 8. **Sanity-check before publish.** Verify the plan has no stale metadata, duplicate blocker wording, or contradictory notes before final messaging.
+9. **HTML twin on every markdown write.** After creating or updating any plan markdown file, generate its sibling HTML with `scripts/render-markdown-html.ts` and report the **absolute paths** of the markdown file(s) and the HTML page(s).
 
 ## Plan Quality Checklist
 
@@ -343,7 +348,7 @@ The agent MUST perform these itself. Do NOT present them as user-facing blockers
 
 1. **Plan artifact readiness.**
    - If no active plan exists, create the `.plans/.../plan-...` artifact before code edits start.
-   - If a plan exists, normalize it to the current objective, scope, execution phases, validation surface, and blocker state.
+   - If a plan exists, normalize it to the current objective, scope, execution phases, validation surface, and blocker state. After any markdown write, generate sibling HTML.
    - Attach supporting local artifacts (UI specs, screenshots, audit directories) where execution or resumption depends on them.
 2. **Study or analysis input is declared.**
    - Source study path exists, or the active plan includes an explicit `No study provided` decision note.
@@ -428,7 +433,7 @@ along with placeholder ledgers such as:
 9. **Run the `documentation-sync` workflow** and update affected docs.
 10. **If guidance files changed, run the `agents-sync` workflow** to reconcile canonical `AGENTS.md` content and proxy stubs.
 11. **If skill files changed, run `npm run skills:sync`** and capture command output.
-12. **Update the active plan** with before/after evidence and a full implemented-behavior explanation.
+12. **Update the active plan** with before/after evidence and a full implemented-behavior explanation. Regenerate HTML twins for any modified markdown.
 13. **Final validation and completion handoff.**
     - Explicitly offer the relevant sync next step:
       - **`CANONICAL_ROOT_WORKSPACE`**: the `workspace-sync-from-origin` workflow and/or the `workspace-publish-to-origin` workflow
@@ -443,7 +448,7 @@ Apply this contract whenever planning creates or materially updates a `.plans/..
 
 The user-facing closeout must summarize:
 
-1. Plan title and path.
+1. Plan title and the **absolute paths** of the plan markdown file(s) and their HTML twin(s).
 2. Objective and intended outcome.
 3. In-scope and out-of-scope boundaries.
 4. Major workstreams or execution phases.
@@ -480,7 +485,7 @@ When the task is "write the implementation plan" from a completed study:
 5. **Optionally deepen with sub-agents.** Only when the user explicitly wants them; keep the coordinating agent as final file owner; use narrow reviewer scopes.
 6. **Patch incrementally.** Integrate concrete findings that materially improve the plan; keep the artifact internally consistent after each pass.
 7. **Run a final consolidation pass.** Remove contradictory wording; collapse duplicate blockers; ensure wave ordering and gate dependencies are sane.
-8. **Explain and publish.** Explain the persisted plan in user-facing prose; publish the scoped `.plans/...` folder unless the user explicitly asks not to.
+8. **Explain and publish.** Explain the persisted plan in user-facing prose; generate HTML twins for modified markdown; publish the scoped `.plans/...` folder unless the user explicitly asks not to. Report absolute paths to the markdown and HTML files.
 
 ### Deepening And Option Selection Matrix
 
@@ -519,7 +524,8 @@ Default option families:
 Use this as a shape guide, not a fixed template:
 
 ```markdown
-Plan published at `.plans/2026-03-21-example/plan-example-2026-03-21.md`.
+Plan markdown: `/absolute/path/to/.plans/2026-03-21-example/plan-example-2026-03-21.md`
+Plan HTML: `/absolute/path/to/.plans/2026-03-21-example/plan-example-2026-03-21.html`
 
 The plan turns the study into four execution phases: contract patching, audit-skill routing,
 validation-surface normalization, and closeout. It keeps runtime implementation changes out of
@@ -630,6 +636,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 10. **Missing artifact links in the Artifact Index.** All screenshots, specs, and audit directories must have local paths in the plan.
 11. **Omitting the Resume Cue for multi-session plans.** Without it, the next session wastes time orienting.
 12. **Listing blockers without resolution paths.** A blocker without a routing decision blocks execution.
+13. **Skipping HTML twins or reporting only relative paths.** After any plan markdown write, generate sibling HTML and give the user absolute paths to both.
 
 ## Temporary Files
 

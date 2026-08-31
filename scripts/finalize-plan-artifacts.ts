@@ -16,6 +16,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 
 import { getRepoRoot, publishScopedArtifacts } from "../../../scripts/shared/finalize-scoped-artifact";
+import { renderMarkdownDirectory } from "./render-markdown-html";
 
 const PLAN_DIRECTORY_PATTERN = /^\d{4}-\d{2}-\d{2}-/;
 
@@ -146,14 +147,29 @@ function main(): void {
       ? values["commit-message"].trim()
       : `docs(plan): publish ${path.basename(relativePlanDir)}`;
 
+  const dryRun = values["dry-run"] === true;
+  const htmlResults = dryRun
+    ? []
+    : renderMarkdownDirectory(path.join(repoRoot, relativePlanDir));
+
   const result = publishScopedArtifacts({
     repoRoot,
     scopePaths: [relativePlanDir],
     commitMessage,
-    dryRun: values["dry-run"] === true,
+    dryRun,
   });
 
-  console.log(JSON.stringify(result, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        ...result,
+        markdownFiles: htmlResults.map((entry) => entry.markdown),
+        htmlFiles: htmlResults.map((entry) => entry.html),
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main();
