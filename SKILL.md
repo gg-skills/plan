@@ -66,6 +66,7 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 
 ```bash
 # Publish completed plan artifacts
+# Runner alternatives: bunx tsx / pnpm dlx tsx / deno run -A npm:tsx / node --import tsx / yarn dlx tsx
 npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plans/YYYY-MM-DD-task-name-slug"
 
 # Resolve the latest plan folder automatically
@@ -643,3 +644,5 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 ## Temporary Files
 
 If this skill needs to create temporary files, place them under `.tmp/plan/YYYY-MM-DD-{subject}`. The root `.tmp/` directory is already gitignored. Do not create top-level dotfile temp directories.
+
+[^rt]: `npx tsx` accepts any standard runner — `bunx tsx`, `pnpm dlx tsx`, `deno run -A npm:tsx`, `node --import tsx`, or `yarn dlx tsx`. The first five auto-fetch `tsx` on demand; only `node --import tsx` requires `tsx` to be installed locally first (`npm i -D tsx`, or `npm i -g tsx` if you cannot reach the npm registry). Bun users can also skip `tsx` entirely and run TypeScript directly via `bun <script>`. Pick whichever your project ships. The canonical runtime decision table lives in the `skills-manager` skill under `Runtime Selection` (only available when working in the full `gg-skills` monorepo).
