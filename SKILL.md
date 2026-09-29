@@ -158,6 +158,8 @@ Before publishing a plan, run through the checklist mentally:
 
 A complete plan has these sections in order. Adapt the shape to the task, but include all applicable sections.
 
+The number of Execution Phases is contextual. Use one phase when the work fits a single logical step; split into multiple phases when the work has independent validation surfaces, distinct dependencies, or different owners. A single-phase plan is valid when its objective can be achieved in one focused execution block.
+
 ```markdown
 # Plan: [Clear one-sentence objective]
 **Path:** `.plans/YYYY-MM-DD-slug/plan-slug-YYYY-MM-DD.md`
