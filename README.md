@@ -75,7 +75,7 @@ Restart your agent or reload skills after installation. See the parent [`skills`
 | `npx tsx … --dry-run` | Validate without staging or committing |
 | `npm run skills:sync` | Rebuild skill indexes after any skill-file change |
 | `npm run agents:sync` | Reconcile `CLAUDE.md` / `GEMINI.md` proxy stubs after `AGENTS.md` changes |
-| **Chosen baseline method** | Discover project CLI instrumentation and the browser tools this harness can run (in-harness browser, Chrome tabs, Playwright, or another runnable runner). Offer that set, then capture baseline and post-implementation artifacts with the chosen method. `playwright-cli` is one candidate when this session can run it |
+| **Chosen baseline method** | In any project and any execution environment, discover that project's instrumentation and the browser or command tools that environment can run. Offer the runnable set, then capture baseline and post-implementation artifacts with the chosen method |
 | **`pipeline-auditing` workflow** | Scenario/replay/latency/cache audit evidence |
 | **`profile-generation-audit` workflow** | Turn/thread/persistence/publication-state audit evidence |
 | **`documentation-sync` workflow** | Reconcile affected docs after behavior changes |
@@ -108,7 +108,7 @@ flowchart TD
     D --> E
     E -- UI work without spec --> F([Block: request UI spec])
     E -- Unresolved decisions --> G([Route to decisions])
-    E -- Clear --> H[Capture baseline evidence\nproject CLI or harness browser\n/ pipeline-audit\n/ profile-generation-audit]
+    E -- Clear --> H[Capture baseline evidence\nproject or environment tools\n/ pipeline-audit\n/ profile-generation-audit]
     H --> I[Runtime-health gate\ncheck local-edge convergence]
     I -- Unhealthy --> J([Block: record as blocked\nawait health pass])
     I -- Healthy --> K[Implement code changes\nfrom plan inventory]
@@ -170,7 +170,7 @@ npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plan
 
 ## Caveats
 
-- **Evidence-first is non-negotiable.** No code edit may begin before baseline evidence is captured with a method this session can run. Discover the project's CLI instrumentation and this harness's browser tools, offer that set, and save local artifacts. Playwright is one candidate when it is runnable here. No fast path bypasses this gate.
+- **Evidence-first is non-negotiable.** No code edit may begin before baseline evidence is captured with a method the executing environment can run in that project. Discover the project's instrumentation and that environment's tools, offer the runnable set, and save local artifacts. No product is the default. No fast path bypasses this gate.
 - **Plan file is source of truth.** Chat-only state drifts. Patch the `.plans/…` file whenever scope, sequencing, or blockers change. After any markdown write, generate sibling HTML and report absolute paths to both.
 - **Sub-agents never own the final plan file.** Even when fan-out is enabled, the coordinating agent integrates all drafts before writing the plan.
 - **`finalize-plan-artifacts.ts` requires `tsx` and the shared helper** at `scripts/shared/finalize-scoped-artifact.ts` in the consuming repo. The script errors if that helper is absent.

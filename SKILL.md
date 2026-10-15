@@ -15,7 +15,7 @@ This skill is the execution bridge between analysis and delivery. It connects:
 - `study/SKILL.md` (analysis artifacts)
 - `decisions/SKILL.md` (blocker resolution)
 - `step-by-step/SKILL.md` (manual checklists)
-- baseline capture from the project's own instrumentation and the browser or CLI tools this harness can run ([Baseline Capture Methods](#baseline-capture-methods)). The `playwright-cli` workflow is one browser method when this session can run it
+- baseline capture discovered in the project being planned and in the environment executing the plan ([Baseline Capture Methods](#baseline-capture-methods))
 - the `pipeline-auditing` workflow (runtime audit evidence)
 - the `profile-generation-audit` workflow (turn-centric audit evidence)
 - the `documentation-sync` workflow (doc reconciliation)
@@ -61,7 +61,7 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 | 8 | Plan sections can be vague if the context is clear | Each section must have explicit scope, success criteria, and dependencies | Explicit over implicit |
 | 9 | The plan can be finalized before reviewing prior work | Plans must reference existing studies, decisions, and constraints before drafting | Upstream ingestion |
 | 10 | A plan without `CHOOSEABLE_OPTIONS` is acceptable | Every plan closeout must end with `CHOOSEABLE_OPTIONS` | Actionable handoff |
-| 11 | Playwright is the browser baseline method | Playwright is one candidate when this session can run it. Offer the project's instrumentation and this harness's runnable browser tools, then capture with the chosen method | Discovered baseline methods |
+| 11 | One browser or CLI tool is the baseline method | The method is discovered in the project being planned and in the environment executing the plan. No product is the default | Portable baseline methods |
 
 ## Quick Commands
 
@@ -187,7 +187,7 @@ One clear sentence describing the intended outcome.
 - **Dependencies:** What must be true before this phase
 - **Exit Criteria:** What must pass before proceeding
 - **Validation Surface:** [browser | runtime | audit | manual]
-- **Baseline method:** [runnable harness browser, Chrome tabs, Playwright, project CLI command, or the only runnable option]
+- **Baseline method:** [tool or command discovered in this project and this execution environment]
 - **Evidence:** [local artifact path | Gated pending]
 
 ### Phase 2: [Name]
@@ -417,22 +417,22 @@ along with placeholder ledgers such as:
 
 ## Baseline Capture Methods
 
-Baseline evidence comes from a method this session can run. Discover the set, offer it, run the chosen method, and store local artifacts. Post-implementation evidence uses that same method.
+Baseline evidence is captured the same way in any project and any execution environment. Discover the methods that exist there, offer the ones that can run, run the chosen method, and store local artifacts. Post-implementation evidence uses that same method.
 
 ### What counts
 
-A method counts only when this session can invoke it in this checkout.
+A method counts when the agent executing the plan can invoke it against the project being planned.
 
-1. **Project instrumentation.** Commands, tasks, and runners the project already ships for the behavior under change. Include browser runners the project configures, and CLI commands whose output is the check: health, routes, probes, test scripts, and documented verification commands. Read the project's scripts and docs. A command that is not runnable here does not count.
-2. **Harness browser.** Browser tools this session can call. The set depends on the harness. It may include an in-harness browser or tab, Chrome tabs, Playwright, or another browser runner exposed to this session. A tool named in a catalog does not count until it is invocable here.
+1. **Project instrumentation.** Commands, tasks, runners, and docs that project ships for the behavior under change. Include browser runners the project configures, and CLI commands whose output is the check: health, routes, probes, test scripts, and documented verification commands. Read that project's scripts and docs. A command that cannot be run there does not count.
+2. **Execution environment.** Browser, tab, and command tools the agent executing the plan can invoke. The inventory is whatever that environment exposes. This skill keeps no tool menu and names no default product. A tool that appears only in a catalog, or only in some other environment, does not count.
 
-Playwright is one candidate when the project configures it or this harness can run it. It is selected only by the choice below.
+A browser runner or a CLI command is chosen because it was found and can run.
 
 ### Choose
 
-When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` before capture, recommended option first, and also open the harness Ask User picker when it exists. Recommend the method the project already uses for this surface when this session can run it. When the project instruments the check with a CLI command, include that command even if a browser method is also available. When only one method can run, use it and record that it was the only runnable option.
+When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` before capture, recommended option first, and also open the Ask User picker when the executing environment has one. Recommend the method the project already uses for this surface when the executing agent can run it. When the project instruments the check with a CLI command, include that command even if a browser method is also available. When only one method can run, use it and record that it was the only runnable option.
 
-Name each option for the real tool, for example `CAPTURE_BASELINE_CHROME_TABS`, `CAPTURE_BASELINE_PLAYWRIGHT`, `CAPTURE_BASELINE_HARNESS_BROWSER`, or `CAPTURE_BASELINE_PROJECT_CLI`.
+Name each option after the tool that was found: `CAPTURE_BASELINE_<TOOL>`.
 
 ### Capture
 
@@ -464,7 +464,7 @@ Each phase that needs baseline evidence includes:
 3. **Resolve blocking user choices** with `decisions/SKILL.md`.
    - Prefer the generated decision-page path when the choice set is dense or branching.
 4. **Capture baseline evidence** with a method from [Baseline Capture Methods](#baseline-capture-methods).
-   - Browser-visible behavior, and any CLI check the project already instruments -> the discovered project commands and the harness browser tools this session can run
+   - Browser-visible behavior, and any CLI check the project instruments -> methods discovered in that project and in the environment executing the plan
    - Scenario/replay/orchestration/latency/cache/disambiguation -> the `pipeline-auditing` workflow
    - Turn/thread/persistence/reveal/publication-state -> the `profile-generation-audit` workflow
    - For non-trivial audit surfaces, keep one parent orchestrator and fan out bounded read-only audit slices to first-class sub-agents.
@@ -596,7 +596,7 @@ Before calling the plan contract complete, verify that the updated guidance supp
 2. Plan with unresolved decisions that should route toward decision resolution.
 3. Complex plan that requires automatic detail deepening.
 4. Plan with multiple durable artifacts that requires explicit resumability references.
-5. Browser or CLI baseline whose runnable methods are a harness browser, Chrome tabs, Playwright, or a project command. The plan records the chosen method and the local artifacts that method produced.
+5. Baseline for a project and an execution environment that were not assumed in advance. The plan records only methods that environment can run there, the chosen method, and the local artifacts that method produced.
 
 ## HANDOFF_OUTPUTS
 
@@ -610,8 +610,8 @@ Before calling the plan contract complete, verify that the updated guidance supp
 
 ### To the chosen baseline method
 
-- Chosen tool or command, why it was runnable in this session, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
-- When the chosen method is the `playwright-cli` workflow: evidence session directory name, exact surface checklist, source routes and expected states, and the screenshot filenames.
+- Chosen tool or command, why it can run in this project from this execution environment, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
+- When the chosen method is itself a workflow, also pass the fields that workflow requires.
 
 ### To the `pipeline-auditing` workflow
 
@@ -666,7 +666,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 |---------|---------------------|-----------|
 | Plan artifact drifts out of sync with chat state | Scope or blockers changed but the persisted plan was not patched | Patch the plan when scope, sequencing, or blockers change materially |
 | Sub-agent drafting lane stalls | Prompt scope is too broad or the agent is stuck on shared-file edits | Relaunch with narrower scope or switch to draft-content mode |
-| Missing baseline for browser or CLI work | No runnable method was chosen, or it was not executed before edits | Follow [Baseline Capture Methods](#baseline-capture-methods): inventory project instrumentation and the harness browser, offer that set, and save local artifacts |
+| Missing baseline for browser or CLI work | No runnable method was chosen, or it was not executed before edits | Follow [Baseline Capture Methods](#baseline-capture-methods): inventory the project and the execution environment, offer the runnable set, and save local artifacts |
 | Runtime-health gate fails after local-edge restart | Health check was run before services converged | Re-run health check after convergence; do not treat startup transients as terminal |
 | Guidance files changed but closure proceeded | Agents-sync step was skipped | Block closure until the `agents-sync` workflow runs |
 | Plan closeout lacks actionable next step | CHOOSEABLE_OPTIONS were omitted | Add recommended-first options before final messaging |
@@ -686,7 +686,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 11. **Omitting the Resume Cue for multi-session plans.** Without it, the next session wastes time orienting.
 12. **Listing blockers without resolution paths.** A blocker without a routing decision blocks execution.
 13. **Skipping HTML twins or reporting only relative paths.** After any plan markdown write, generate sibling HTML and give the user absolute paths to both.
-14. **Treating one browser tool as the baseline method.** Inventory the project's instrumentation and the browser tools this harness can run, offer that set, and capture with the chosen method. See [Baseline Capture Methods](#baseline-capture-methods).
+14. **Assuming a baseline tool.** Discover the methods in the project being planned and in the environment executing the plan, offer the runnable set, and capture with the chosen method. See [Baseline Capture Methods](#baseline-capture-methods).
 
 ## Temporary Files
 
