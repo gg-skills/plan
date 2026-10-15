@@ -62,6 +62,7 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 | 9 | The plan can be finalized before reviewing prior work | Plans must reference existing studies, decisions, and constraints before drafting | Upstream ingestion |
 | 10 | A plan without `CHOOSEABLE_OPTIONS` is acceptable | Every plan closeout must end with `CHOOSEABLE_OPTIONS` | Actionable handoff |
 | 11 | One browser or CLI tool is the baseline method | The method is discovered in the project being planned and in the environment executing the plan. No product is the default | Portable baseline methods |
+| 12 | An implementation turn can end with a status line and `CHOOSEABLE_OPTIONS` | The ending turn prints the [Implementation Report](#implementation-report) so the operator can see what changed, how live behavior was proven, what to notice, and how to verify it | Operator implementation report |
 
 ## Quick Commands
 
@@ -98,7 +99,7 @@ npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --dir ".plans/YYYY-M
 2. **Plan artifact discipline.** Every execution maps to a concrete `.plans/YYYY-MM-DD-task-name-slug/plan-<slug>-YYYY-MM-DD.md` file and stays synchronized with real execution state.
 3. **Single-threaded default.** Default to coordinating-agent-owned plan writing; use sub-agents only when the user explicitly requests them, with one bounded drafting lane and narrow reviewer lanes.
 4. **UI and browser gates.** UI or page modifications require a visible UI spec artifact before implementation. Browser-testable changes, and checks the project instruments with a CLI command, require matching baseline and post-implementation artifacts from [Baseline Capture Methods](#baseline-capture-methods).
-5. **Closeout completeness.** Plan closeout must explain the persisted plan, surface pending items and blockers, and end with `CHOOSEABLE_OPTIONS`.
+5. **Closeout completeness.** A turn that wrote or updated the plan explains the persisted plan, surfaces pending items and blockers, and ends with `CHOOSEABLE_OPTIONS`. A turn that fully implemented a phase or the plan prints the [Implementation Report](#implementation-report) before those options.
 6. **Sync before closure.** Documentation sync and guidance reconciliation (the `agents-sync` workflow) must complete before closure when relevant files changed; skill files changed require `npm run skills:sync`.
 7. **Runtime-health gates.** Stop execution and record the plan as blocked when a required dependency is unhealthy; transient startup failures under `npm run local` are provisional until local-edge convergence.
 8. **Sanity-check before publish.** Verify the plan has no stale metadata, duplicate blocker wording, or contradictory notes before final messaging.
@@ -226,6 +227,7 @@ Short paragraph telling the next session what to reopen first.
 | **Artifact Index** | Full | Resumability |
 | **Resume Cue** | Full | Session recovery |
 | **CHOOSEABLE_OPTIONS** | All tiers | Actionable handoff |
+| **Implementation Report** | After a phase or the plan is fully implemented | The operator can see before and after, the live proof, and how to verify it |
 
 ## Plan Consistency Validator
 
@@ -476,16 +478,33 @@ Each phase that needs baseline evidence includes:
 9. **Run the `documentation-sync` workflow** and update affected docs.
 10. **If guidance files changed, run the `agents-sync` workflow** to reconcile canonical `AGENTS.md` content and proxy stubs.
 11. **If skill files changed, run `npm run skills:sync`** and capture command output.
-12. **Update the active plan** with before/after evidence and a full implemented-behavior explanation. Regenerate HTML twins for any modified markdown.
-13. **Final validation and completion handoff.**
+12. **Update the active plan** with before/after evidence and the [Implementation Report](#implementation-report) when a phase or the plan was fully implemented in this turn. Regenerate HTML twins for any modified markdown.
+13. **Print the implementation report** when this turn fully implemented a phase or the plan. The printed report is the ending explanation. Follow [Implementation Report](#implementation-report).
+14. **Final validation and completion handoff.**
     - Explicitly offer the relevant sync next step:
       - **`CANONICAL_ROOT_WORKSPACE`**: the `workspace-sync-from-origin` workflow and/or the `workspace-publish-to-origin` workflow
       - **`PREPARED_WORKTREE`**: the `worktrees-update-from-main` workflow, the `worktrees-merge-to-main` workflow, and/or the `worktrees-align-active-sequential` workflow
     - Choose the narrowest relevant offer based on the active checkout state.
 
+## Implementation Report
+
+Print this report in the ending turn when a phase, or the whole plan, has just been fully implemented. Write the same report into the plan under `## Implementation Report`, regenerate the HTML twin, and point the printed report at the absolute paths of the plan markdown, the HTML page, and the evidence.
+
+The report is for the operator. A reader who did not see the work should understand what changed, why it is believed to work in the live environment, what they should notice, and how to check it themselves. Organize it around before and after.
+
+Cover these parts, in this order:
+
+1. **What was implemented.** The behavior that now exists, in ordinary language. Name the phase when only a phase finished. When the turn finished more than one phase, cover every phase that finished in that turn.
+2. **Before and after.** What the operator would have observed before, and what they observe now. Use a table when several behaviors, metrics, or surfaces changed. Use a flowchart when the path through the behavior changed. Put the same table or flowchart in the plan markdown so the HTML twin shows it.
+3. **Live proof.** What was run in the live environment with the chosen baseline method, what it showed, and the absolute path or link to each artifact. A check that never touched the live environment is listed separately and is not presented as live proof. If live proof was not run, say that in this part.
+4. **What to notice.** The behaviors, metrics, and other differences the operator should expect to see after this implementation.
+5. **How to verify.** The steps the operator follows to check it. Each step includes a way in: an absolute link, a command, or an image path the operator can open.
+
+`CHOOSEABLE_OPTIONS` comes after the report.
+
 ## Required Plan Closeout Contract
 
-Apply this contract whenever planning creates or materially updates a `.plans/...` artifact.
+Apply this contract when the turn wrote or updated a `.plans/...` artifact and did not just finish implementing a phase or the plan. An implementation-ending turn uses [Implementation Report](#implementation-report) for the explanation.
 
 ### Persisted Plan Explanation
 
@@ -566,7 +585,7 @@ Baseline-method options are not in this default list. When capture has not been 
 
 ## Example Plan Closeout
 
-Use this as a shape guide, not a fixed template:
+Use this as a shape guide for a turn that wrote or updated the plan, not a fixed template. A turn that fully implemented a phase or the plan uses [Implementation Report](#implementation-report) instead.
 
 ```markdown
 Plan markdown: `/absolute/path/to/.plans/2026-03-21-example/plan-example-2026-03-21.md`
@@ -597,6 +616,7 @@ Before calling the plan contract complete, verify that the updated guidance supp
 3. Complex plan that requires automatic detail deepening.
 4. Plan with multiple durable artifacts that requires explicit resumability references.
 5. Baseline for a project and an execution environment that were not assumed in advance. The plan records only methods that environment can run there, the chosen method, and the local artifacts that method produced.
+6. A phase or the plan was fully implemented in this turn. The ending turn prints the Implementation Report: what changed, before and after, live proof with links and images, what to notice, and the steps the operator uses to verify it. The same report is in the plan.
 
 ## HANDOFF_OUTPUTS
 
@@ -656,6 +676,7 @@ Whether execution starts from `study/SKILL.md` or directly from `plan`, the fina
 5. Documentation updates.
 6. Traceable commit references.
 7. Guidance sync when canonical `AGENTS.md` content or `CLAUDE.md` / `GEMINI.md` proxy stubs were changed.
+8. When a phase or the plan was fully implemented in this turn, the Implementation Report printed in the ending turn and saved in the plan.
 
 No fast path may bypass baseline evidence capture or documentation updates.
 No fast path may continue after runtime-health degradation; interruption, blocker evidence, and a fresh health pass are required before resuming.
@@ -670,6 +691,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 | Runtime-health gate fails after local-edge restart | Health check was run before services converged | Re-run health check after convergence; do not treat startup transients as terminal |
 | Guidance files changed but closure proceeded | Agents-sync step was skipped | Block closure until the `agents-sync` workflow runs |
 | Plan closeout lacks actionable next step | CHOOSEABLE_OPTIONS were omitted | Add recommended-first options before final messaging |
+| An implemented phase ends on a status line | The operator never received the before/after report | Print the [Implementation Report](#implementation-report) before ending the turn |
 
 ## Common Pitfalls
 
@@ -687,6 +709,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 12. **Listing blockers without resolution paths.** A blocker without a routing decision blocks execution.
 13. **Skipping HTML twins or reporting only relative paths.** After any plan markdown write, generate sibling HTML and give the user absolute paths to both.
 14. **Assuming a baseline tool.** Discover the methods in the project being planned and in the environment executing the plan, offer the runnable set, and capture with the chosen method. See [Baseline Capture Methods](#baseline-capture-methods).
+15. **Ending an implemented phase with a changelog.** Print the [Implementation Report](#implementation-report): what changed, before and after, live proof, what to notice, and how the operator verifies it.
 
 ## Temporary Files
 
