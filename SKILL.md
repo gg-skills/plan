@@ -5,7 +5,7 @@ description: when configuring implementation plans from studies, execute with ev
 
 # GG → Plan → Implementation Delivery
 
-> **Snapshot age:** reviewed `2026-04-13` (~20 days old as of today).
+> **Snapshot age:** reviewed `2026-10-15`.
 > Verify release-sensitive answers with `research-online/SKILL.md` before responding with high confidence.
 
 ## Overview
@@ -15,7 +15,7 @@ This skill is the execution bridge between analysis and delivery. It connects:
 - `study/SKILL.md` (analysis artifacts)
 - `decisions/SKILL.md` (blocker resolution)
 - `step-by-step/SKILL.md` (manual checklists)
-- the `playwright-cli` workflow (browser evidence)
+- baseline capture from the project's own instrumentation and the browser or CLI tools this harness can run ([Baseline Capture Methods](#baseline-capture-methods)). The `playwright-cli` workflow is one browser method when this session can run it
 - the `pipeline-auditing` workflow (runtime audit evidence)
 - the `profile-generation-audit` workflow (turn-centric audit evidence)
 - the `documentation-sync` workflow (doc reconciliation)
@@ -54,13 +54,14 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 | 1 | Plans can start with code edits before baseline evidence | Baseline evidence must be collected first | Evidence-first execution |
 | 2 | Sub-agents should own the final plan file by default | Coordinating agent owns the persisted plan; sub-agents draft or review only | Single-threaded default |
 | 3 | Text-only descriptions are enough for UI work | A visible UI spec artifact is required before implementation | UI spec gate |
-| 4 | Screenshot evidence can reference route URLs or GitHub metadata | Screenshots must be resolvable local artifact bytes | Artifact resolvability |
+| 4 | Baseline evidence can be a route URL, a chat description, or the name of a tool that was not run | The chosen method must be run, and the screenshot, snapshot, or command transcript must be a local artifact | Artifact resolvability |
 | 5 | Runtime-health failures during `npm run local` startup are always terminal | Transient failures during startup are provisional until convergence | Convergence before judgment |
 | 6 | A plan is complete when it lists tasks | A complete plan has evidence links, validation gates, and exit criteria for every phase | Plan completeness |
 | 7 | All blockers can be resolved before implementation | Some blockers are resolved during execution; document the resolution path, not just the blocker | Live blocker management |
 | 8 | Plan sections can be vague if the context is clear | Each section must have explicit scope, success criteria, and dependencies | Explicit over implicit |
 | 9 | The plan can be finalized before reviewing prior work | Plans must reference existing studies, decisions, and constraints before drafting | Upstream ingestion |
 | 10 | A plan without `CHOOSEABLE_OPTIONS` is acceptable | Every plan closeout must end with `CHOOSEABLE_OPTIONS` | Actionable handoff |
+| 11 | Playwright is the browser baseline method | Playwright is one candidate when this session can run it. Offer the project's instrumentation and this harness's runnable browser tools, then capture with the chosen method | Discovered baseline methods |
 
 ## Quick Commands
 
@@ -96,7 +97,7 @@ npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --dir ".plans/YYYY-M
 1. **Evidence-first.** Baseline evidence must be collected before any code edits; post-implementation evidence is required before closure.
 2. **Plan artifact discipline.** Every execution maps to a concrete `.plans/YYYY-MM-DD-task-name-slug/plan-<slug>-YYYY-MM-DD.md` file and stays synchronized with real execution state.
 3. **Single-threaded default.** Default to coordinating-agent-owned plan writing; use sub-agents only when the user explicitly requests them, with one bounded drafting lane and narrow reviewer lanes.
-4. **UI and browser gates.** UI or page modifications require a visible UI spec artifact before implementation; browser-testable changes require matching baseline and post-implementation screenshot evidence.
+4. **UI and browser gates.** UI or page modifications require a visible UI spec artifact before implementation. Browser-testable changes, and checks the project instruments with a CLI command, require matching baseline and post-implementation artifacts from [Baseline Capture Methods](#baseline-capture-methods).
 5. **Closeout completeness.** Plan closeout must explain the persisted plan, surface pending items and blockers, and end with `CHOOSEABLE_OPTIONS`.
 6. **Sync before closure.** Documentation sync and guidance reconciliation (the `agents-sync` workflow) must complete before closure when relevant files changed; skill files changed require `npm run skills:sync`.
 7. **Runtime-health gates.** Stop execution and record the plan as blocked when a required dependency is unhealthy; transient startup failures under `npm run local` are provisional until local-edge convergence.
@@ -114,9 +115,9 @@ Use this checklist before publishing any plan. Each item is a gate — the plan 
 | 3 | **Upstream ingestion** — Plan references existing study, prior decisions, and constraints | Prevents redundant analysis | Pre-draft |
 | 4 | **Phase ordering** — Execution phases are ordered with explicit dependencies between phases | Prevents out-of-order execution | Draft |
 | 5 | **Evidence plan** — Each phase has a declared validation surface (browser, runtime, audit) | Ensures evidence-first discipline | Draft |
-| 6 | **Baseline capture** — Baseline evidence is captured before any code changes begin | Required by policy #1 | Pre-implementation |
+| 6 | **Baseline capture** — The phase names a runnable baseline method, and the evidence is captured or gated on that method | Required by policy #1. See [Baseline Capture Methods](#baseline-capture-methods) | Pre-implementation |
 | 7 | **Blocker inventory** — All blockers are listed with resolution paths or routing decisions | Prevents stuck execution | Draft |
-| 8 | **Artifact linkage** — All supporting artifacts (specs, screenshots, audits) are linked with local paths | Ensures resumability | Draft |
+| 8 | **Artifact linkage** — All supporting artifacts (specs, baseline captures, audits) are linked with local paths | Ensures resumability | Draft |
 | 9 | **Exit criteria** — Each phase has explicit success criteria that must pass before proceeding | Provides concrete completion gates | Draft |
 | 10 | **Resumability cues** — Plan includes a short "resume cue" telling the next session what to reopen first | Enables session recovery | Closeout |
 | 11 | **CHOOSEABLE_OPTIONS** — Plan closeout ends with recommended-first action options | Provides actionable handoff | Closeout |
@@ -135,7 +136,7 @@ Before publishing a plan, run through the checklist mentally:
 □ Study or "No study" referenced
 □ Phases ordered with dependencies noted
 □ Each phase has validation surface declared
-□ Baseline evidence captured (or gated)
+□ Baseline method declared; evidence captured or gated on that method
 □ Blockers listed with resolution paths
 □ Artifacts linked with local paths
 □ Exit criteria per phase
@@ -186,7 +187,8 @@ One clear sentence describing the intended outcome.
 - **Dependencies:** What must be true before this phase
 - **Exit Criteria:** What must pass before proceeding
 - **Validation Surface:** [browser | runtime | audit | manual]
-- **Evidence:** [Baseline captured | Gated pending]
+- **Baseline method:** [runnable harness browser, Chrome tabs, Playwright, project CLI command, or the only runnable option]
+- **Evidence:** [local artifact path | Gated pending]
 
 ### Phase 2: [Name]
 ... (same structure)
@@ -200,7 +202,8 @@ One clear sentence describing the intended outcome.
 | Artifact | Path | Purpose |
 |---------|------|--------|
 | [Spec] | `.plans/.../spec.md` | UI definition |
-| [Screenshot] | `artifacts/baseline/*.png` | Browser evidence |
+| [Screenshot or snapshot] | `artifacts/baseline/*` | Browser evidence from the chosen method |
+| [CLI transcript] | `artifacts/baseline/*` | Output of a project instrumentation command |
 
 ## Resume Cue
 Short paragraph telling the next session what to reopen first.
@@ -236,6 +239,7 @@ Before publishing a plan, run these consistency checks. A plan that fails any ch
 | **Phase Dependencies** | Earlier phases don't depend on later phases | Reorder phases |
 | **Blocker Resolution** | Every blocker has a resolution path or routing decision | Add routing or escalate |
 | **Evidence vs Validation** | Every phase's validation surface has corresponding evidence | Capture evidence or gate pending |
+| **Baseline method** | A browser or CLI validation surface names a runnable baseline method | Add the Baseline method line from [Baseline Capture Methods](#baseline-capture-methods) |
 | **Artifact vs Content** | Every Artifact Index entry has corresponding content in plan | Link artifact or remove from index |
 | **Exit Criteria vs Evidence** | Exit criteria are verifiable by the declared evidence type | Make criteria concrete and evidence-anchored |
 | **Objective vs Scope** | Objective can be achieved within in-scope, not out-of-scope | Clarify scope or adjust objective |
@@ -306,7 +310,8 @@ For each phase, answer:
 - **Dependencies:** 
 - **Exit Criteria:** 
 - **Validation Surface:** [browser | runtime | audit | manual]
-- **Evidence:** [Baseline | Gated]
+- **Baseline method:** [runnable tool or project command]
+- **Evidence:** [local artifact path | Gated]
 ```
 
 ### Phase 4: Blocker Inventory
@@ -335,7 +340,7 @@ Before publishing, verify:
 
 ```
 □ Plan Quality Checklist complete (run through all 15 items)
-□ Consistency checks passed (run through all 10 checks)
+□ Consistency checks passed (run through all 11 checks)
 □ No red flags present
 □ CHOOSEABLE_OPTIONS written
 □ Resume cue written
@@ -366,8 +371,8 @@ These are the ONLY conditions that should stop execution and require user input.
 2. Unresolved execution decisions must be inventoried and resolved through `decisions/SKILL.md`.
 3. Runtime-health gate must pass for the declared dependency set before code edits or browser evidence resume.
 4. If `npm run local` is the active runtime, the gate must inspect local-edge artifacts before falling back to direct localhost probes.
-5. Baseline screenshot evidence must exist for all target browser surfaces when the task touches browser-testable behavior.
-6. Baseline evidence rows must resolve to real local screenshot files before any screenshot reference is treated as satisfied.
+5. The task touches browser-testable behavior or a project CLI check, and the baseline method is still unchosen or its artifact does not exist yet. Follow [Baseline Capture Methods](#baseline-capture-methods).
+6. A baseline evidence row does not resolve to a local artifact produced by the chosen method.
 7. Plan artifact creation or required synchronization could not be completed after automatic normalization was already attempted.
 8. Missing validation command results for changed behavior.
 9. Guidance files changed but the `agents-sync` workflow reconciliation is missing.
@@ -410,6 +415,41 @@ along with placeholder ledgers such as:
 - environment disposition matrix,
 - final closure matrix.
 
+## Baseline Capture Methods
+
+Baseline evidence comes from a method this session can run. Discover the set, offer it, run the chosen method, and store local artifacts. Post-implementation evidence uses that same method.
+
+### What counts
+
+A method counts only when this session can invoke it in this checkout.
+
+1. **Project instrumentation.** Commands, tasks, and runners the project already ships for the behavior under change. Include browser runners the project configures, and CLI commands whose output is the check: health, routes, probes, test scripts, and documented verification commands. Read the project's scripts and docs. A command that is not runnable here does not count.
+2. **Harness browser.** Browser tools this session can call. The set depends on the harness. It may include an in-harness browser or tab, Chrome tabs, Playwright, or another browser runner exposed to this session. A tool named in a catalog does not count until it is invocable here.
+
+Playwright is one candidate when the project configures it or this harness can run it. It is selected only by the choice below.
+
+### Choose
+
+When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` before capture, recommended option first, and also open the harness Ask User picker when it exists. Recommend the method the project already uses for this surface when this session can run it. When the project instruments the check with a CLI command, include that command even if a browser method is also available. When only one method can run, use it and record that it was the only runnable option.
+
+Name each option for the real tool, for example `CAPTURE_BASELINE_CHROME_TABS`, `CAPTURE_BASELINE_PLAYWRIGHT`, `CAPTURE_BASELINE_HARNESS_BROWSER`, or `CAPTURE_BASELINE_PROJECT_CLI`.
+
+### Capture
+
+Run the chosen method against the behavior the plan will change.
+
+- A browser method exercises the flow and saves the screenshot or snapshot the tool writes under `artifacts/baseline/`.
+- A CLI method runs the project command and saves the command, the exit status, and the output under `artifacts/baseline/`.
+
+A route URL, a log line copied into chat, or a description of what the page showed is not evidence. Post-implementation evidence uses the same method and lands under `artifacts/post/`. A later session keeps that method unless the plan records why it can no longer run.
+
+### Plan record
+
+Each phase that needs baseline evidence includes:
+
+- **Baseline method:** the runnable tool or command
+- **Evidence:** a local artifact path, or `Gated pending` plus the method that will capture it
+
 ## Deterministic Sequence
 
 1. **Ingest context** from the active plan, study, and related execution artifacts.
@@ -423,8 +463,8 @@ along with placeholder ledgers such as:
    - Default to coordinating-agent-owned single-threaded first draft unless the user explicitly wants sub-agent-assisted plan generation.
 3. **Resolve blocking user choices** with `decisions/SKILL.md`.
    - Prefer the generated decision-page path when the choice set is dense or branching.
-4. **Capture baseline evidence** on the primary validation surface.
-   - Browser-visible behavior -> the `playwright-cli` workflow
+4. **Capture baseline evidence** with a method from [Baseline Capture Methods](#baseline-capture-methods).
+   - Browser-visible behavior, and any CLI check the project already instruments -> the discovered project commands and the harness browser tools this session can run
    - Scenario/replay/orchestration/latency/cache/disambiguation -> the `pipeline-auditing` workflow
    - Turn/thread/persistence/reveal/publication-state -> the `profile-generation-audit` workflow
    - For non-trivial audit surfaces, keep one parent orchestrator and fan out bounded read-only audit slices to first-class sub-agents.
@@ -432,7 +472,7 @@ along with placeholder ledgers such as:
    - When local-edge is active, use local-edge artifacts as the primary health source.
 6. **Implement code changes** from plan inventory.
 7. **Run targeted tests and parity checks.**
-8. **Capture post-implementation evidence** on the same validation surface used for baseline.
+8. **Capture post-implementation evidence** with the same baseline method, on the same validation surface used for baseline.
 9. **Run the `documentation-sync` workflow** and update affected docs.
 10. **If guidance files changed, run the `agents-sync` workflow** to reconcile canonical `AGENTS.md` content and proxy stubs.
 11. **If skill files changed, run `npm run skills:sync`** and capture command output.
@@ -522,6 +562,8 @@ Default option families:
 7. `WRITE_PLAN_SINGLE_THREADED` / `WRITE_PLAN_WITH_SUBAGENTS`: Plan-generation mode selection when no active plan exists yet.
 8. `CREATE_SPEC_FOR_FINDING`: Capture out-of-scope issues via `specs/SKILL.md`.
 
+Baseline-method options are not in this default list. When capture has not been chosen yet, build them from the discovered set in [Baseline Capture Methods](#baseline-capture-methods).
+
 ## Example Plan Closeout
 
 Use this as a shape guide, not a fixed template:
@@ -554,6 +596,7 @@ Before calling the plan contract complete, verify that the updated guidance supp
 2. Plan with unresolved decisions that should route toward decision resolution.
 3. Complex plan that requires automatic detail deepening.
 4. Plan with multiple durable artifacts that requires explicit resumability references.
+5. Browser or CLI baseline whose runnable methods are a harness browser, Chrome tabs, Playwright, or a project command. The plan records the chosen method and the local artifacts that method produced.
 
 ## HANDOFF_OUTPUTS
 
@@ -565,9 +608,10 @@ Before calling the plan contract complete, verify that the updated guidance supp
 
 - Active plan path, ordered manual-step queue with prerequisites, expected evidence for each user-executed step, current blocker or next-step recommendation.
 
-### To the `playwright-cli` workflow
+### To the chosen baseline method
 
-- Evidence session directory name, exact surface checklist (before/after parity), source routes and expected flash states, exact screenshot artifact filenames and relative evidence paths.
+- Chosen tool or command, why it was runnable in this session, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
+- When the chosen method is the `playwright-cli` workflow: evidence session directory name, exact surface checklist, source routes and expected states, and the screenshot filenames.
 
 ### To the `pipeline-auditing` workflow
 
@@ -606,8 +650,8 @@ Before calling the plan contract complete, verify that the updated guidance supp
 Whether execution starts from `study/SKILL.md` or directly from `plan`, the final output must include:
 
 1. Synchronized plan + companion artifact references.
-2. Baseline and post-implementation evidence on the primary validation surface.
-3. Browser screenshot parity/accessibility validation outputs when browser-visible behavior is in scope.
+2. Baseline and post-implementation evidence from the chosen baseline method, on the primary validation surface.
+3. Local browser artifacts (screenshot or snapshot) when browser-visible behavior is in scope, and the project CLI transcript when a project command is the chosen method.
 4. Audit artifacts and before/after comparison outputs when runtime or turn-centric audit work is in scope.
 5. Documentation updates.
 6. Traceable commit references.
@@ -622,7 +666,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 |---------|---------------------|-----------|
 | Plan artifact drifts out of sync with chat state | Scope or blockers changed but the persisted plan was not patched | Patch the plan when scope, sequencing, or blockers change materially |
 | Sub-agent drafting lane stalls | Prompt scope is too broad or the agent is stuck on shared-file edits | Relaunch with narrower scope or switch to draft-content mode |
-| Missing baseline screenshot for browser work | Playwright evidence was not captured before code edits | Run the `playwright-cli` workflow before edits |
+| Missing baseline for browser or CLI work | No runnable method was chosen, or it was not executed before edits | Follow [Baseline Capture Methods](#baseline-capture-methods): inventory project instrumentation and the harness browser, offer that set, and save local artifacts |
 | Runtime-health gate fails after local-edge restart | Health check was run before services converged | Re-run health check after convergence; do not treat startup transients as terminal |
 | Guidance files changed but closure proceeded | Agents-sync step was skipped | Block closure until the `agents-sync` workflow runs |
 | Plan closeout lacks actionable next step | CHOOSEABLE_OPTIONS were omitted | Add recommended-first options before final messaging |
@@ -633,7 +677,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 2. **Letting sub-agents edit the final plan file directly.** Keep the coordinating agent as final owner; sub-agents return drafts for integration.
 3. **Skipping UI spec for "small" visual changes.** Any DOM or CSS change needs a spec artifact before implementation.
 4. **Using chat-only state instead of the persisted plan.** The `.plans/...` file is the source of truth for execution state.
-5. **Forgetting to attach supporting artifacts.** Reference local screenshot, audit, and spec paths inside the plan.
+5. **Forgetting to attach supporting artifacts.** Reference the local artifact from the chosen baseline method, plus audit and spec paths, inside the plan.
 6. **Publishing without offering the relevant sync next step.** Always offer workspace or worktree sync based on the active checkout.
 7. **Treating all local-edge startup errors as blocking.** Wait for convergence before judging runtime health.
 8. **Publishing a plan without verifying completeness.** Run through the Plan Quality Checklist before publishing.
@@ -642,6 +686,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 11. **Omitting the Resume Cue for multi-session plans.** Without it, the next session wastes time orienting.
 12. **Listing blockers without resolution paths.** A blocker without a routing decision blocks execution.
 13. **Skipping HTML twins or reporting only relative paths.** After any plan markdown write, generate sibling HTML and give the user absolute paths to both.
+14. **Treating one browser tool as the baseline method.** Inventory the project's instrumentation and the browser tools this harness can run, offer that set, and capture with the chosen method. See [Baseline Capture Methods](#baseline-capture-methods).
 
 ## Temporary Files
 

@@ -105,7 +105,7 @@ const CHECKLIST_ITEMS: Omit<ChecklistItem, "checked">[] = [
   { number: 3, name: "Upstream ingestion", description: "Study or prior decisions referenced", required: true, weight: 2 },
   { number: 4, name: "Phase ordering", description: "Dependencies between phases explicit", required: true, weight: 2 },
   { number: 5, name: "Evidence plan", description: "Validation surface per phase", required: true, weight: 2 },
-  { number: 6, name: "Baseline capture", description: "Evidence captured or gated", required: true, weight: 2 },
+  { number: 6, name: "Baseline capture", description: "Runnable baseline method named; evidence captured or gated", required: true, weight: 2 },
   { number: 7, name: "Blocker inventory", description: "Resolution paths documented", required: true, weight: 2 },
   { number: 8, name: "Artifact linkage", description: "Local paths for all artifacts", required: true, weight: 2 },
   { number: 9, name: "Exit criteria", description: "Success criteria per phase", required: true, weight: 2 },
@@ -172,7 +172,7 @@ function checkItem(content: string, item: Omit<ChecklistItem, "checked">): boole
     case 3: return /##\s*Upstream|Study:|No study provided/i.test(content);
     case 4: return /##\s*Execution\s+Phases|Phase\s+\d+:|###\s+Phase\s+\d+/m.test(content);
     case 5: return /Validation\s+Surface:|validation.*surface/i.test(content);
-    case 6: return /Baseline|baseline.*capture|Evidence:/i.test(content);
+    case 6: return /Baseline\s+method:|Baseline|baseline.*capture|Evidence:/i.test(content);
     case 7: return /##\s*Blockers|Blocker.*Impact.*Resolution|Blockers.*&.*Risks/i.test(content);
     case 8: return /##\s*Artifact|Artifact\s+Index|\.plans\/|\.png|\.md/i.test(content);
     case 9: return /Exit\s+Criteria:|exit.*criteria|criteria.*pass/i.test(content);
@@ -222,6 +222,19 @@ function runConsistencyChecks(content: string): ConsistencyCheck[] {
     name: "Blocker Resolution",
     passed: !blockersMatch || hasResolutionPaths,
     message: !blockersMatch ? "No blockers section" : hasResolutionPaths ? "All blockers have resolution paths" : "Some blockers missing resolution paths",
+  });
+
+  // Baseline method when a browser or project CLI surface is declared
+  const declaresCapturedSurface = /Validation\s+Surface:\s*[^\n]*\b(browser|cli)\b/i.test(content);
+  const namesBaselineMethod = /Baseline\s+method:/i.test(content);
+  checks.push({
+    name: "Baseline method",
+    passed: !declaresCapturedSurface || namesBaselineMethod,
+    message: !declaresCapturedSurface
+      ? "No browser or CLI validation surface declared"
+      : namesBaselineMethod
+        ? "Baseline method named for the captured surface"
+        : "Browser or CLI surface is missing a Baseline method line",
   });
 
   // Evidence vs Validation
