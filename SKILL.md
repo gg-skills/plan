@@ -373,7 +373,7 @@ These are the ONLY conditions that should stop execution and require user input.
 2. Unresolved execution decisions must be inventoried and resolved through `decisions/SKILL.md`.
 3. Runtime-health gate must pass for the declared dependency set before code edits or browser evidence resume.
 4. If `npm run local` is the active runtime, the gate must inspect local-edge artifacts before falling back to direct localhost probes.
-5. The task touches browser-testable behavior or a project CLI check, and the baseline method is still unchosen or its artifact does not exist yet. Follow [Baseline Capture Methods](#baseline-capture-methods). An empty inventory is not a user choice: the zero-method paragraph runs `improve-instrumentation` and then captures. Stop for the operator only when that run does not return a command and a human path.
+5. The task touches browser-testable behavior or a project CLI check, and the baseline method is still unchosen or its artifact does not exist yet. Follow [Baseline Capture Methods](#baseline-capture-methods). An empty inventory is not a user choice: the zero-method paragraph runs `instrumentation` on the improve route and then captures. Stop for the operator only when that run does not return a command and a human path.
 6. A baseline evidence row does not resolve to a local artifact produced by the chosen method.
 7. Plan artifact creation or required synchronization could not be completed after automatic normalization was already attempted.
 8. Missing validation command results for changed behavior.
@@ -436,7 +436,7 @@ When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` befo
 
 Name each option after the tool that was found: `CAPTURE_BASELINE_<TOOL>`.
 
-When no method can run for a browser-testable check or a project CLI check, do not offer an empty set and do not invent a probe. Run `improve-instrumentation/SKILL.md` for the named behavior before any planned edit. Pass the behavior and the question the baseline must answer. That run is the only project edit allowed before baseline, and only when the count is zero. It must return the command and the human path. That command is then the only runnable method: use it, record that none could run before it, and save the transcript under `artifacts/baseline/`. Post-implementation evidence uses that same command under `artifacts/post/`. If it does not return both, stop. The planned edit stays behind blocking conditions 5 and 6 until the artifact exists. Do not run that skill when one or more methods can already run. A browser or CLI that can already capture is enough. Offer the closeout token instead.
+When no method can run for a browser-testable check or a project CLI check, do not offer an empty set and do not invent a probe. Run `instrumentation/SKILL.md` on the improve route for the named behavior before any planned edit. Pass the behavior and the question the baseline must answer. That run is the only project edit allowed before baseline, and only when the count is zero. It must return the command and the human path. That command is then the only runnable method: use it, record that none could run before it, and save the transcript under `artifacts/baseline/`. Post-implementation evidence uses that same command under `artifacts/post/`. If it does not return both, stop. The planned edit stays behind blocking conditions 5 and 6 until the artifact exists. Do not run that skill when one or more methods can already run. A browser or CLI that can already capture is enough. Offer the closeout token instead.
 
 ### Capture
 
@@ -587,7 +587,7 @@ Baseline-method options are not in this default list. When capture has not been 
 
 When a required check can already be captured, and a checked-in command plus a human view would still help, add one closeout option. Do not mark it recommended. Do not add it to a `CAPTURE_BASELINE_<TOOL>` menu. Print it with the other closeout tokens and open the Ask User picker in that same turn when the harness has one. Do not open a picker for the single-method path, and do not open one to authorize the zero-method run.
 
-- `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior via `improve-instrumentation/SKILL.md`. Capture still uses the method already chosen.
+- `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior via `instrumentation/SKILL.md`. Capture still uses the method already chosen.
 
 ## Example Plan Closeout
 
@@ -623,7 +623,7 @@ Before calling the plan contract complete, verify that the updated guidance supp
 4. Plan with multiple durable artifacts that requires explicit resumability references.
 5. Baseline for a project and an execution environment that were not assumed in advance. The plan records only methods that environment can run there, the chosen method, and the local artifacts that method produced.
 6. A phase or the plan was fully implemented in this turn. The ending turn prints the Implementation Report: what changed, before and after, live proof with links and images, what to notice, and the steps the operator uses to verify it. The same report is in the plan.
-7. A required browser or CLI check has zero runnable methods. The plan runs `improve-instrumentation` for the named behavior, then captures with the command it returns. It does not ask the operator to authorize that run. When a method can already run, it captures with that method and may offer `IMPROVE_INSTRUMENTATION` at closeout.
+7. A required browser or CLI check has zero runnable methods. The plan runs `instrumentation` on the improve route for the named behavior, then captures with the command it returns. It does not ask the operator to authorize that run. When a method can already run, it captures with that method and may offer `IMPROVE_INSTRUMENTATION` at closeout.
 
 ## HANDOFF_OUTPUTS
 
@@ -640,8 +640,9 @@ Before calling the plan contract complete, verify that the updated guidance supp
 - Chosen tool or command, why it can run in this project from this execution environment, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
 - When the chosen method is itself a workflow, also pass the fields that workflow requires.
 
-### To `improve-instrumentation/SKILL.md`
+### To `instrumentation/SKILL.md`
 
+- Route: improve. This handoff is not a verify and not a map.
 - The named behavior this phase must observe. Not a bare invocation.
 - The question the baseline has to answer from a run.
 - That plan will capture with the returned command. No new vendor. No second probe beside a method that can already run.
