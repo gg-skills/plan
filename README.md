@@ -174,7 +174,7 @@ npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plan
 
 ## Caveats
 
-- **Evidence-first is non-negotiable.** No code edit may begin before baseline evidence is captured with a method the executing environment can run in that project. Discover the project's instrumentation and that environment's tools, offer the runnable set, and save local artifacts. No product is the default. No fast path bypasses this gate.
+- **Evidence-first is non-negotiable.** No planned edit may begin before baseline evidence is captured with a method the executing environment can run in that project. Discover the project's instrumentation and that environment's tools, offer the runnable set, and save local artifacts. When that set is empty for a required check, the zero-method rule in [SKILL.md](SKILL.md) runs `improve-instrumentation` before the planned edit. That probe is the only edit allowed before the baseline transcript. No product is the default. No fast path bypasses this gate.
 - **Plan file is source of truth.** Chat-only state drifts. Patch the `.plans/…` file whenever scope, sequencing, or blockers change. After any markdown write, generate sibling HTML and report absolute paths to both.
 - **An implementation-ending turn prints the operator report.** When a phase or the plan was just fully implemented, the ending turn prints the Implementation Report: what changed, before and after, live proof, what the operator should notice, and how to verify it, with links and images. The same report is saved in the plan.
 - **Sub-agents never own the final plan file.** Even when fan-out is enabled, the coordinating agent integrates all drafts before writing the plan.

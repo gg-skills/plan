@@ -51,7 +51,7 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 
 | # | Misconception | Correction | Key concept |
 |---|---------------|------------|-------------|
-| 1 | Plans can start with code edits before baseline evidence | Baseline evidence must be collected first | Evidence-first execution |
+| 1 | Plans can start the planned product edit before baseline evidence | Baseline evidence must be collected first. The only earlier edit is the zero-method probe | Evidence-first execution |
 | 2 | Sub-agents should own the final plan file by default | Coordinating agent owns the persisted plan; sub-agents draft or review only | Single-threaded default |
 | 3 | Text-only descriptions are enough for UI work | A visible UI spec artifact is required before implementation | UI spec gate |
 | 4 | Baseline evidence can be a route URL, a chat description, or the name of a tool that was not run | The chosen method must be run, and the screenshot, snapshot, or command transcript must be a local artifact | Artifact resolvability |
@@ -95,7 +95,7 @@ npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --dir ".plans/YYYY-M
 
 ## Non-Negotiable Policy
 
-1. **Evidence-first.** Baseline evidence must be collected before any code edits; post-implementation evidence is required before closure.
+1. **Evidence-first.** Baseline evidence must be collected before any planned product edit. The only earlier edit is the zero-method probe in [Baseline Capture Methods](#baseline-capture-methods). Post-implementation evidence is required before closure.
 2. **Plan artifact discipline.** Every execution maps to a concrete `.plans/YYYY-MM-DD-task-name-slug/plan-<slug>-YYYY-MM-DD.md` file and stays synchronized with real execution state.
 3. **Single-threaded default.** Default to coordinating-agent-owned plan writing; use sub-agents only when the user explicitly requests them, with one bounded drafting lane and narrow reviewer lanes.
 4. **UI and browser gates.** UI or page modifications require a visible UI spec artifact before implementation. Browser-testable changes, and checks the project instruments with a CLI command, require matching baseline and post-implementation artifacts from [Baseline Capture Methods](#baseline-capture-methods).
@@ -373,7 +373,7 @@ These are the ONLY conditions that should stop execution and require user input.
 2. Unresolved execution decisions must be inventoried and resolved through `decisions/SKILL.md`.
 3. Runtime-health gate must pass for the declared dependency set before code edits or browser evidence resume.
 4. If `npm run local` is the active runtime, the gate must inspect local-edge artifacts before falling back to direct localhost probes.
-5. The task touches browser-testable behavior or a project CLI check, and the baseline method is still unchosen or its artifact does not exist yet. Follow [Baseline Capture Methods](#baseline-capture-methods).
+5. The task touches browser-testable behavior or a project CLI check, and the baseline method is still unchosen or its artifact does not exist yet. Follow [Baseline Capture Methods](#baseline-capture-methods). An empty inventory is not a user choice: the zero-method paragraph runs `improve-instrumentation` and then captures. Stop for the operator only when that run does not return a command and a human path.
 6. A baseline evidence row does not resolve to a local artifact produced by the chosen method.
 7. Plan artifact creation or required synchronization could not be completed after automatic normalization was already attempted.
 8. Missing validation command results for changed behavior.
@@ -435,6 +435,8 @@ A browser runner or a CLI command is chosen because it was found and can run.
 When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` before capture, recommended option first, and also open the Ask User picker when the executing environment has one. Recommend the method the project already uses for this surface when the executing agent can run it. When the project instruments the check with a CLI command, include that command even if a browser method is also available. When only one method can run, use it and record that it was the only runnable option.
 
 Name each option after the tool that was found: `CAPTURE_BASELINE_<TOOL>`.
+
+When no method can run for a browser-testable check or a project CLI check, do not offer an empty set and do not invent a probe. Run `improve-instrumentation/SKILL.md` for the named behavior before any planned edit. Pass the behavior and the question the baseline must answer. That run is the only project edit allowed before baseline, and only when the count is zero. It must return the command and the human path. That command is then the only runnable method: use it, record that none could run before it, and save the transcript under `artifacts/baseline/`. Post-implementation evidence uses that same command under `artifacts/post/`. If it does not return both, stop. The planned edit stays behind blocking conditions 5 and 6 until the artifact exists. Do not run that skill when one or more methods can already run. A browser or CLI that can already capture is enough. Offer the closeout token instead.
 
 ### Capture
 
@@ -583,6 +585,10 @@ Default option families:
 
 Baseline-method options are not in this default list. When capture has not been chosen yet, build them from the discovered set in [Baseline Capture Methods](#baseline-capture-methods).
 
+When a required check can already be captured, and a checked-in command plus a human view would still help, add one closeout option. Do not mark it recommended. Do not add it to a `CAPTURE_BASELINE_<TOOL>` menu. Print it with the other closeout tokens and open the Ask User picker in that same turn when the harness has one. Do not open a picker for the single-method path, and do not open one to authorize the zero-method run.
+
+- `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior via `improve-instrumentation/SKILL.md`. Capture still uses the method already chosen.
+
 ## Example Plan Closeout
 
 Use this as a shape guide for a turn that wrote or updated the plan, not a fixed template. A turn that fully implemented a phase or the plan uses [Implementation Report](#implementation-report) instead.
@@ -617,6 +623,7 @@ Before calling the plan contract complete, verify that the updated guidance supp
 4. Plan with multiple durable artifacts that requires explicit resumability references.
 5. Baseline for a project and an execution environment that were not assumed in advance. The plan records only methods that environment can run there, the chosen method, and the local artifacts that method produced.
 6. A phase or the plan was fully implemented in this turn. The ending turn prints the Implementation Report: what changed, before and after, live proof with links and images, what to notice, and the steps the operator uses to verify it. The same report is in the plan.
+7. A required browser or CLI check has zero runnable methods. The plan runs `improve-instrumentation` for the named behavior, then captures with the command it returns. It does not ask the operator to authorize that run. When a method can already run, it captures with that method and may offer `IMPROVE_INSTRUMENTATION` at closeout.
 
 ## HANDOFF_OUTPUTS
 
@@ -632,6 +639,13 @@ Before calling the plan contract complete, verify that the updated guidance supp
 
 - Chosen tool or command, why it can run in this project from this execution environment, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
 - When the chosen method is itself a workflow, also pass the fields that workflow requires.
+
+### To `improve-instrumentation/SKILL.md`
+
+- The named behavior this phase must observe. Not a bare invocation.
+- The question the baseline has to answer from a run.
+- That plan will capture with the returned command. No new vendor. No second probe beside a method that can already run.
+- Required back: the command and the human path from the report row, proved on one run.
 
 ### To the `pipeline-auditing` workflow
 
@@ -687,7 +701,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 |---------|---------------------|-----------|
 | Plan artifact drifts out of sync with chat state | Scope or blockers changed but the persisted plan was not patched | Patch the plan when scope, sequencing, or blockers change materially |
 | Sub-agent drafting lane stalls | Prompt scope is too broad or the agent is stuck on shared-file edits | Relaunch with narrower scope or switch to draft-content mode |
-| Missing baseline for browser or CLI work | No runnable method was chosen, or it was not executed before edits | Follow [Baseline Capture Methods](#baseline-capture-methods): inventory the project and the execution environment, offer the runnable set, and save local artifacts |
+| Missing baseline for browser or CLI work | No runnable method was chosen, or it was not executed before edits | Follow [Baseline Capture Methods](#baseline-capture-methods). When the runnable set is empty for a required browser or CLI check, follow the zero-method paragraph under [Choose](#choose). Otherwise offer the runnable set and save local artifacts |
 | Runtime-health gate fails after local-edge restart | Health check was run before services converged | Re-run health check after convergence; do not treat startup transients as terminal |
 | Guidance files changed but closure proceeded | Agents-sync step was skipped | Block closure until the `agents-sync` workflow runs |
 | Plan closeout lacks actionable next step | CHOOSEABLE_OPTIONS were omitted | Add recommended-first options before final messaging |
@@ -708,7 +722,7 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 11. **Omitting the Resume Cue for multi-session plans.** Without it, the next session wastes time orienting.
 12. **Listing blockers without resolution paths.** A blocker without a routing decision blocks execution.
 13. **Skipping HTML twins or reporting only relative paths.** After any plan markdown write, generate sibling HTML and give the user absolute paths to both.
-14. **Assuming a baseline tool.** Discover the methods in the project being planned and in the environment executing the plan, offer the runnable set, and capture with the chosen method. See [Baseline Capture Methods](#baseline-capture-methods).
+14. **Assuming a baseline tool.** Discover the methods in the project being planned and in the environment executing the plan, offer the runnable set, and capture with the chosen method. When that set is empty for a required check, follow the zero-method paragraph under [Choose](#choose). See [Baseline Capture Methods](#baseline-capture-methods).
 15. **Ending an implemented phase with a changelog.** Print the [Implementation Report](#implementation-report): what changed, before and after, live proof, what to notice, and how the operator verifies it.
 
 ## Temporary Files
