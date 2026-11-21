@@ -47,23 +47,6 @@ For a direct command lookup, see [Quick Commands](#quick-commands) below.
 - The task is a single trivial file edit with no plan artifact needed.
 - The user explicitly wants only a study, not execution (use `study/SKILL.md`).
 
-## Common Misconceptions
-
-| # | Misconception | Correction | Key concept |
-|---|---------------|------------|-------------|
-| 1 | Plans can start the planned product edit before baseline evidence | Baseline evidence must be collected first. The only earlier edit is the zero-method probe | Evidence-first execution |
-| 2 | Sub-agents should own the final plan file by default | Coordinating agent owns the persisted plan; sub-agents draft or review only | Single-threaded default |
-| 3 | Text-only descriptions are enough for UI work | A visible UI spec artifact is required before implementation | UI spec gate |
-| 4 | Baseline evidence can be a route URL, a chat description, or the name of a tool that was not run | The chosen method must be run, and the screenshot, snapshot, or command transcript must be a local artifact | Artifact resolvability |
-| 5 | Runtime-health failures during `npm run local` startup are always terminal | Transient failures during startup are provisional until convergence | Convergence before judgment |
-| 6 | A plan is complete when it lists tasks | A complete plan has evidence links, validation gates, and exit criteria for every phase | Plan completeness |
-| 7 | All blockers can be resolved before implementation | Some blockers are resolved during execution; document the resolution path, not just the blocker | Live blocker management |
-| 8 | Plan sections can be vague if the context is clear | Each section must have explicit scope, success criteria, and dependencies | Explicit over implicit |
-| 9 | The plan can be finalized before reviewing prior work | Plans must reference existing studies, decisions, and constraints before drafting | Upstream ingestion |
-| 10 | A plan without `CHOOSEABLE_OPTIONS` is acceptable | Every plan closeout must end with `CHOOSEABLE_OPTIONS` | Actionable handoff |
-| 11 | One browser or CLI tool is the baseline method | The method is discovered in the project being planned and in the environment executing the plan. No product is the default | Portable baseline methods |
-| 12 | An implementation turn can end with a status line and `CHOOSEABLE_OPTIONS` | The ending turn prints the [Implementation Report](#implementation-report) so the operator can see what changed, how live behavior was proven, what to notice, and how to verify it | Operator implementation report |
-
 ## Quick Commands
 
 ```bash
@@ -107,47 +90,9 @@ npx tsx .agents/skills/plan/scripts/render-markdown-html.ts --dir ".plans/YYYY-M
 
 ## Plan Quality Checklist
 
-Use this checklist before publishing any plan. Each item is a gate — the plan is not complete until all items are satisfied.
+Read the [Plan Quality Checklist and consistency validator](references/plan-quality.md) when preparing to publish any plan. Run the synthetic validation scenarios there when changing the plan contract.
 
-| # | Checklist Item | Why It Matters | Gate |
-|---|---------------|---------------|------|
-| 1 | **Objective clarity** — The plan states a single clear objective and intended outcome in one sentence | Prevents scope creep and misalignment | Pre-draft |
-| 2 | **Scope boundaries** — In-scope and out-of-scope items are explicitly listed | Prevents hidden assumptions | Pre-draft |
-| 3 | **Upstream ingestion** — Plan references existing study, prior decisions, and constraints | Prevents redundant analysis | Pre-draft |
-| 4 | **Phase ordering** — Execution phases are ordered with explicit dependencies between phases | Prevents out-of-order execution | Draft |
-| 5 | **Evidence plan** — Each phase has a declared validation surface (browser, runtime, audit) | Ensures evidence-first discipline | Draft |
-| 6 | **Baseline capture** — The phase names a runnable baseline method, and the evidence is captured or gated on that method | Required by policy #1. See [Baseline Capture Methods](#baseline-capture-methods) | Pre-implementation |
-| 7 | **Blocker inventory** — All blockers are listed with resolution paths or routing decisions | Prevents stuck execution | Draft |
-| 8 | **Artifact linkage** — All supporting artifacts (specs, baseline captures, audits) are linked with local paths | Ensures resumability | Draft |
-| 9 | **Exit criteria** — Each phase has explicit success criteria that must pass before proceeding | Provides concrete completion gates | Draft |
-| 10 | **Resumability cues** — Plan includes a short "resume cue" telling the next session what to reopen first | Enables session recovery | Closeout |
-| 11 | **CHOOSEABLE_OPTIONS** — Plan closeout ends with recommended-first action options | Provides actionable handoff | Closeout |
-| 12 | **Sync routing** — Closeout offers relevant workspace/worktree sync based on active checkout | Completes the delivery loop | Closeout |
-| 13 | **No contradictions** — Scope, phases, blockers, and options do not contradict each other | Prevents execution confusion | Sanity-check |
-| 14 | **No duplicates** — Pending items appear in one visible place, not scattered across sections | Prevents missed work | Sanity-check |
-| 15 | **Metadata current** — Plan header has correct date, path, and version | Ensures artifact integrity | Sanity-check |
-
-### Pre-Publish Verification
-
-Before publishing a plan, run through the checklist mentally:
-
-```
-□ Objective is clear and singular
-□ In-scope / out-of-scope listed
-□ Study or "No study" referenced
-□ Phases ordered with dependencies noted
-□ Each phase has validation surface declared
-□ Baseline method declared; evidence captured or gated on that method
-□ Blockers listed with resolution paths
-□ Artifacts linked with local paths
-□ Exit criteria per phase
-□ Resume cue written
-□ CHOOSEABLE_OPTIONS present
-□ Sync routing offered
-□ No contradictions found
-□ No duplicate items
-□ Metadata current
-```
+Resolve conflicts by giving priority to the objective, then scope, upstream decisions, captured evidence, and concrete exit criteria.
 
 ### Quality Tiers
 
@@ -228,125 +173,6 @@ Short paragraph telling the next session what to reopen first.
 | **Resume Cue** | Full | Session recovery |
 | **CHOOSEABLE_OPTIONS** | All tiers | Actionable handoff |
 | **Implementation Report** | After a phase or the plan is fully implemented | The operator can see before and after, the live proof, and how to verify it |
-
-## Plan Consistency Validator
-
-Before publishing a plan, run these consistency checks. A plan that fails any check must be fixed before closeout.
-
-### Consistency Check Matrix
-
-| Check | What to Verify | How to Fix |
-|-------|---------------|------------|
-| **Scope vs Phases** | Every in-scope item appears in a phase; no out-of-scope item appears | Add missing items or move to out-of-scope |
-| **Phase Dependencies** | Earlier phases don't depend on later phases | Reorder phases |
-| **Blocker Resolution** | Every blocker has a resolution path or routing decision | Add routing or escalate |
-| **Evidence vs Validation** | Every phase's validation surface has corresponding evidence | Capture evidence or gate pending |
-| **Baseline method** | A browser or CLI validation surface names a runnable baseline method | Add the Baseline method line from [Baseline Capture Methods](#baseline-capture-methods) |
-| **Artifact vs Content** | Every Artifact Index entry has corresponding content in plan | Link artifact or remove from index |
-| **Exit Criteria vs Evidence** | Exit criteria are verifiable by the declared evidence type | Make criteria concrete and evidence-anchored |
-| **Objective vs Scope** | Objective can be achieved within in-scope, not out-of-scope | Clarify scope or adjust objective |
-| **Upstream vs Scope** | Prior decisions don't contradict in-scope/out-of-scope | Reconcile with upstream |
-| **Resume Cue vs Blockers** | Resume cue acknowledges blockers if any are unresolved | Update resume cue |
-| **CHOOSEABLE_OPTIONS vs State** | Options match the current execution state and blockers | Add missing options or close resolved blockers |
-
-### Conflict Resolution Priority
-
-When sections contradict, resolve in this order:
-
-1. **Objective** — The objective is supreme; everything else must align
-2. **Scope** — Scope boundaries take priority over phase contents
-3. **Upstream Decisions** — Prior decisions (from studies, decisions) override local choices
-4. **Evidence** — Captured evidence overrides assumptions
-5. **Exit Criteria** — Concrete criteria override vague ones
-
-### Red Flags (Never Publish)
-
-A plan with any of these must be fixed before publishing:
-
-- [ ] Phase depends on a later phase's output
-- [ ] Blocker listed but no resolution path
-- [ ] Evidence declared but no artifact path
-- [ ] Exit criterion that cannot be verified
-- [ ] Objective achievable only through out-of-scope items
-- [ ] Contradictory scope items (X is both in-scope and out-of-scope)
-
-## Plan Generation Prompt Template
-
-Use this template when the user asks to "write a plan" or "create an implementation plan". Fill in each section with specific content.
-
-### Phase 1: Ingest and Orient
-
-```
-# Task Analysis
-
-1. What is the objective? (one clear sentence)
-2. What study or prior work exists? (path or "No study")
-3. What constraints apply? (deadline, tech stack, etc.)
-4. What decisions are already made? (from prior decisions)
-```
-
-### Phase 2: Scope Definition
-
-```
-# Scope
-
-## In-scope
-- [ ] 
-- [ ] 
-
-## Out-of-scope
-- [ ] 
-- [ ] 
-```
-
-### Phase 3: Phase Decomposition
-
-For each phase, answer:
-
-```
-## Phase N: [Name]
-- **Objective:** 
-- **Steps:**
-  1. 
-  2. 
-- **Dependencies:** 
-- **Exit Criteria:** 
-- **Validation Surface:** [browser | runtime | audit | manual]
-- **Baseline method:** [runnable tool or project command]
-- **Evidence:** [local artifact path | Gated]
-```
-
-### Phase 4: Blocker Inventory
-
-```
-# Blockers & Risks
-
-| Blocker | Impact | Resolution Path |
-|---------|--------|----------------|
-| | | |
-```
-
-### Phase 5: Artifact Assembly
-
-```
-# Artifact Index
-
-| Artifact | Path | Purpose |
-|---------|------|--------|
-| | | |
-```
-
-### Phase 6: Final Review
-
-Before publishing, verify:
-
-```
-□ Plan Quality Checklist complete (run through all 15 items)
-□ Consistency checks passed (run through all 11 checks)
-□ No red flags present
-□ CHOOSEABLE_OPTIONS written
-□ Resume cue written
-```
 
 ## Pre-Implementation Normalization
 
@@ -456,6 +282,8 @@ Each phase that needs baseline evidence includes:
 
 ## Deterministic Sequence
 
+Read the [handoff outputs](references/handoff-outputs.md) when a step routes work to another skill or workflow.
+
 1. **Ingest context** from the active plan, study, and related execution artifacts.
    - A completed the `codex-sessions` workflow improvement inventory is also valid upstream input.
    - If the work includes UI/page changes, inspect the visible UI spec artifact before writing or executing the plan.
@@ -508,6 +336,8 @@ Cover these parts, in this order:
 
 Apply this contract when the turn wrote or updated a `.plans/...` artifact and did not just finish implementing a phase or the plan. An implementation-ending turn uses [Implementation Report](#implementation-report) for the explanation.
 
+Read the [example plan closeout](references/plan-drafting.md#example-plan-closeout) when writing a planning closeout.
+
 ### Persisted Plan Explanation
 
 The user-facing closeout must summarize:
@@ -539,6 +369,8 @@ Before final publish messaging, verify that:
 4. Recommendation, validation, and pending sections do not conflict.
 
 ## Default Procedure For Generating Implementation Plans
+
+Read the [plan generation prompt template](references/plan-drafting.md#plan-generation-prompt-template) when drafting an implementation plan.
 
 When the task is "write the implementation plan" from a completed study:
 
@@ -588,97 +420,6 @@ Baseline-method options are not in this default list. When capture has not been 
 When a required check can already be captured, and a checked-in command plus a human view would still help, add one closeout option. Do not mark it recommended. Do not add it to a `CAPTURE_BASELINE_<TOOL>` menu. Print it with the other closeout tokens and open the Ask User picker in that same turn when the harness has one. Do not open a picker for the single-method path, and do not open one to authorize the zero-method run.
 
 - `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior via `instrumentation/SKILL.md`. Capture still uses the method already chosen.
-
-## Example Plan Closeout
-
-Use this as a shape guide for a turn that wrote or updated the plan, not a fixed template. A turn that fully implemented a phase or the plan uses [Implementation Report](#implementation-report) instead.
-
-```markdown
-Plan markdown: `/absolute/path/to/.plans/2026-03-21-example/plan-example-2026-03-21.md`
-Plan HTML: `/absolute/path/to/.plans/2026-03-21-example/plan-example-2026-03-21.html`
-
-The plan turns the study into four execution phases: contract patching, audit-skill routing,
-validation-surface normalization, and closeout. It keeps runtime implementation changes out of
-scope, validates with `npm run skills:sync` plus synthetic scenario checks, and still has two
-pending items before code begins: baseline audit capture and a final choice on whether the first
-slice should expose an explicit audit-evidence label.
-
-CHOOSEABLE_OPTIONS
-- `IMPLEMENT_FULL_PLAN` (Recommended): Apply the documented file changes, run `npm run skills:sync` if skill files changed, and update the plan with execution notes.
-- `CAPTURE_PRE_CHANGE_AUDIT_BASELINE`: Run the selected audit lane before the behavior change when the plan is runtime-oriented and a baseline comparison should be preserved.
-- `EXPLAIN_PLAN_VISUALLY`: Produce a concise execution map with phases, dependencies, and blockers before implementation starts.
-- `DEEPEN_PLAN_FIRST`: Expand the workstreams into file-by-file edit steps and expected validation output before implementation.
-- `REVIEW_PLAN_POINT_BY_POINT`: Walk the plan sections and challenge the locked defaults before code changes.
-```
-
-Also invoke the harness Ask User picker for these options in the same turn when that tool is available. See `chooseable-options/SKILL.md`.
-
-## Synthetic Validation Scenarios
-
-Before calling the plan contract complete, verify that the updated guidance supports all of these scenarios cleanly:
-
-1. Execution-ready plan with no blockers.
-2. Plan with unresolved decisions that should route toward decision resolution.
-3. Complex plan that requires automatic detail deepening.
-4. Plan with multiple durable artifacts that requires explicit resumability references.
-5. Baseline for a project and an execution environment that were not assumed in advance. The plan records only methods that environment can run there, the chosen method, and the local artifacts that method produced.
-6. A phase or the plan was fully implemented in this turn. The ending turn prints the Implementation Report: what changed, before and after, live proof with links and images, what to notice, and the steps the operator uses to verify it. The same report is in the plan.
-7. A required browser or CLI check has zero runnable methods. The plan runs `instrumentation` on the improve route for the named behavior, then captures with the command it returns. It does not ask the operator to authorize that run. When a method can already run, it captures with that method and may offer `IMPROVE_INSTRUMENTATION` at closeout.
-
-## HANDOFF_OUTPUTS
-
-### To `decisions/SKILL.md`
-
-- Active plan path, study path or `No study provided` note, unresolved decision queue and ordering, current recommendation set and blocking status.
-
-### To `step-by-step/SKILL.md`
-
-- Active plan path, ordered manual-step queue with prerequisites, expected evidence for each user-executed step, current blocker or next-step recommendation.
-
-### To the chosen baseline method
-
-- Chosen tool or command, why it can run in this project from this execution environment, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
-- When the chosen method is itself a workflow, also pass the fields that workflow requires.
-
-### To `instrumentation/SKILL.md`
-
-- Route: improve. This handoff is not a verify and not a map.
-- The named behavior this phase must observe. Not a bare invocation.
-- The question the baseline has to answer from a run.
-- That plan will capture with the returned command. No new vendor. No second probe beside a method that can already run.
-- Required back: the command and the human path from the report row, proved on one run.
-
-### To the `pipeline-auditing` workflow
-
-- Selected scenario or comparison target, expected baseline/post-change comparison intent, primary runtime question set, whether to run as orchestrator plus bounded first-class sub-agents.
-
-### To the `profile-generation-audit` workflow
-
-- Known pivot IDs (`turnId`, `threadId`, `profileRootId`) when available, expected baseline/post-change comparison intent, primary evidence-plane focus, whether to run as orchestrator plus bounded first-class sub-agents.
-
-### To the `documentation-sync` workflow
-
-- Changed file inventory, behavior deltas and contract updates, documentation targets and class-index update requirements.
-
-### To the `agents-sync` workflow
-
-- Changed guidance file list (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`), expected topic-doc references requiring verification, repositories/submodules touched.
-
-### To `study/SKILL.md`
-
-- Implementation outcomes, deviations from study recommendations, unresolved follow-up questions.
-
-### To `explain/SKILL.md`
-
-- Active plan path, phase breakdown and dependency notes, blockers or pending items, recommended downstream route after explanation.
-
-### To the `codex-sessions` workflow
-
-- Implemented guidance/script/tooling outcomes that originated from session inspection, deviations from the original `IMPROVEMENT_INVENTORY`, validation results.
-
-### To `specs/SKILL.md`
-
-- Discovered issues or opportunities beyond the current plan's scope, evidence sources for Runbook References, observed behavior descriptions for User Journey diagrams, key source files for Key Files tables, priority classification.
 
 ## Entry-Point Agnostic Quality Contract
 

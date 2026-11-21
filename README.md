@@ -143,7 +143,14 @@ plan/
 │   ├── icon-large.png
 │   ├── icon-large.svg
 │   ├── icon-master.png
-│   └── icon-small.svg
+│   ├── icon-metaphor.txt
+│   ├── icon-prompt.txt
+│   ├── icon-small.svg
+│   └── icon-summary.txt
+├── references/
+│   ├── handoff-outputs.md
+│   ├── plan-drafting.md
+│   └── plan-quality.md
 └── scripts/
     ├── finalize-plan-artifacts.ts    # CLI: stage & publish .plans/ artifact tree
     └── render-markdown-html.ts       # Sibling HTML for plan markdown

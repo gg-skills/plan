@@ -1,0 +1,1 @@
+A map pin marks the destination while a checklist tracks the steps that lead there.
