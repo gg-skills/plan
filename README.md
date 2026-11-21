@@ -24,7 +24,7 @@ mkdir -p ~/.claude/skills
 git -C ~/.claude/skills clone git@github.com:gg-skills/plan.git
 ```
 
-Restart your agent or reload skills after installation. See the parent [`skills` catalog repo](https://github.com/gg-skills/skills) for the full catalog.
+Restart your agent or reload skills after installation. Browse public skills on the [GG Skills organization profile](https://github.com/gg-skills).
 
 ## When to use
 
@@ -46,7 +46,7 @@ Restart your agent or reload skills after installation. See the parent [`skills`
 | **Conversation context** | Active task description, user intent, explicit sub-agent preference |
 | **Plan artifact** | `.plans/YYYY-MM-DD-<slug>/plan-<slug>-YYYY-MM-DD.md` — read if it already exists; created if not |
 | **Study artifact** | Output of `study` (any path the user or plan references); optional when noted as `No study provided` |
-| **Codex-session inventory** | `codex-sessions` workflow improvement inventory; accepted as a substitute for a full study |
+| **Session workflow inventory** | A completed workflow improvement inventory from a session audit can substitute for a full study |
 | **UI spec artifact** | Required for any DOM/CSS change; must be linked in the study or plan before implementation |
 | **Baseline artifacts** | Local files under `artifacts/baseline/` and `artifacts/post/` from the chosen method: browser screenshot or snapshot, or a project CLI transcript |
 | **Runtime health state** | Derived by inspecting local-edge convergence artifacts or direct localhost probes |
@@ -177,7 +177,7 @@ npx tsx .agents/skills/plan/scripts/finalize-plan-artifacts.ts --plan-dir ".plan
 - [SKILL.md](SKILL.md) — full trigger list, non-negotiable policy, deterministic sequence, CHOOSEABLE_OPTIONS contract, and troubleshooting table
 - [scripts/finalize-plan-artifacts.ts](scripts/finalize-plan-artifacts.ts) — plan artifact publisher (reads `.plans/`, validates layout, delegates to `publishScopedArtifacts`)
 - [agents/openai.yaml](agents/openai.yaml) — OpenAI Agents SDK interface definition
-- Parent collection: [gg-skills](https://github.com/gg-skills/skills)
+- Public collection: [GG Skills](https://github.com/gg-skills)
 
 ## Caveats
 

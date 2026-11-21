@@ -15,7 +15,7 @@
 - Chosen tool or command, why it can run in this project from this execution environment, the surface or command checklist, the before/after comparison intent, and the local artifact paths under `artifacts/baseline/` and `artifacts/post/`.
 - When the chosen method is itself a workflow, also pass the fields that workflow requires.
 
-### To `instrumentation/SKILL.md`
+### To the project’s instrumentation workflow
 
 - Route: improve. This handoff is not a verify and not a map.
 - The named behavior this phase must observe. Not a bare invocation.
@@ -47,7 +47,7 @@
 
 - Active plan path, phase breakdown and dependency notes, blockers or pending items, recommended downstream route after explanation.
 
-### To the `codex-sessions` workflow
+### To the session audit workflow
 
 - Implemented guidance/script/tooling outcomes that originated from session inspection, deviations from the original `IMPROVEMENT_INVENTORY`, validation results.
 

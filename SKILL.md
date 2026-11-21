@@ -188,7 +188,7 @@ The agent MUST perform these itself. Do NOT present them as user-facing blockers
    - Attach supporting local artifacts (UI specs, screenshots, audit directories) where execution or resumption depends on them.
 2. **Study or analysis input is declared.**
    - Source study path exists, or the active plan includes an explicit `No study provided` decision note.
-   - A completed the `codex-sessions` workflow improvement inventory may satisfy analysis input when a broader study is not needed.
+   - A completed workflow improvement inventory from a session audit may satisfy analysis input when a broader study is not needed.
 3. **Documentation update scope is declared up front.**
 
 ### Blocking Conditions
@@ -262,7 +262,7 @@ When more than one method can run, present that set as `CHOOSEABLE_OPTIONS` befo
 
 Name each option after the tool that was found: `CAPTURE_BASELINE_<TOOL>`.
 
-When no method can run for a browser-testable check or a project CLI check, do not offer an empty set and do not invent a probe. Run `instrumentation/SKILL.md` on the improve route for the named behavior before any planned edit. Pass the behavior and the question the baseline must answer. That run is the only project edit allowed before baseline, and only when the count is zero. It must return the command and the human path. That command is then the only runnable method: use it, record that none could run before it, and save the transcript under `artifacts/baseline/`. Post-implementation evidence uses that same command under `artifacts/post/`. If it does not return both, stop. The planned edit stays behind blocking conditions 5 and 6 until the artifact exists. Do not run that skill when one or more methods can already run. A browser or CLI that can already capture is enough. Offer the closeout token instead.
+When no method can run for a browser-testable check or a project CLI check, do not offer an empty set and do not invent a probe. Use the project’s instrumentation workflow to add a check for the named behavior before any planned edit. Pass the behavior and the question the baseline must answer. That run is the only project edit allowed before baseline, and only when the count is zero. It must return the command and the human path. That command is then the only runnable method: use it, record that none could run before it, and save the transcript under `artifacts/baseline/`. Post-implementation evidence uses that same command under `artifacts/post/`. If it does not return both, stop. The planned edit stays behind blocking conditions 5 and 6 until the artifact exists. Do not run that workflow when one or more methods can already run. A browser or CLI that can already capture is enough. Offer the closeout token instead.
 
 ### Capture
 
@@ -285,7 +285,7 @@ Each phase that needs baseline evidence includes:
 Read the [handoff outputs](references/handoff-outputs.md) when a step routes work to another skill or workflow.
 
 1. **Ingest context** from the active plan, study, and related execution artifacts.
-   - A completed the `codex-sessions` workflow improvement inventory is also valid upstream input.
+   - A completed workflow improvement inventory from a session audit is also valid upstream input.
    - If the work includes UI/page changes, inspect the visible UI spec artifact before writing or executing the plan.
    - When the upstream study is large, distill it into a compact plan brief before wide drafting or review begins.
 2. **Ensure plan artifact readiness.**
@@ -419,7 +419,7 @@ Baseline-method options are not in this default list. When capture has not been 
 
 When a required check can already be captured, and a checked-in command plus a human view would still help, add one closeout option. Do not mark it recommended. Do not add it to a `CAPTURE_BASELINE_<TOOL>` menu. Print it with the other closeout tokens and open the Ask User picker in that same turn when the harness has one. Do not open a picker for the single-method path, and do not open one to authorize the zero-method run.
 
-- `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior via `instrumentation/SKILL.md`. Capture still uses the method already chosen.
+- `IMPROVE_INSTRUMENTATION`: Add a command and a human view for the named behavior through the project’s instrumentation workflow. Capture still uses the method already chosen.
 
 ## Entry-Point Agnostic Quality Contract
 
@@ -471,4 +471,4 @@ No fast path may continue after runtime-health degradation; interruption, blocke
 
 If this skill needs to create temporary files, place them under `.tmp/plan/YYYY-MM-DD-{subject}`. The root `.tmp/` directory is already gitignored. Do not create top-level dotfile temp directories.
 
-[^rt]: `npx tsx` accepts any standard runner — `bunx tsx`, `pnpm dlx tsx`, `deno run -A npm:tsx`, `node --import tsx`, or `yarn dlx tsx`. The first five auto-fetch `tsx` on demand; only `node --import tsx` requires `tsx` to be installed locally first (`npm i -D tsx`, or `npm i -g tsx` if you cannot reach the npm registry). Bun users can also skip `tsx` entirely and run TypeScript directly via `bun <script>`. Pick whichever your project ships. The canonical runtime decision table lives in the `skills-manager` skill under `Runtime Selection` (only available when working in the full `gg-skills` monorepo).
+[^rt]: `npx tsx` accepts any standard runner — `bunx tsx`, `pnpm dlx tsx`, `deno run -A npm:tsx`, `node --import tsx`, or `yarn dlx tsx`. The first five auto-fetch `tsx` on demand; only `node --import tsx` requires `tsx` to be installed locally first (`npm i -D tsx`, or `npm i -g tsx` if you cannot reach the npm registry). Bun users can also skip `tsx` entirely and run TypeScript directly via `bun <script>`. Pick whichever your project ships.
